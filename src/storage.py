@@ -130,7 +130,7 @@ class RoadmapStorageManager:
         
         Args:
             task_id: The task ID to delete
-            
+
         Returns:
             True if successful, False otherwise
         """

@@ -7,8 +7,8 @@ import "./pages"
 import io.stepsketch.backend 1.0
 
 ApplicationWindow {
-    width: 640
-    height: 480
+    width: 1024
+    height: 768
     visible: true
     title: "Task Plan Viewer"
 
@@ -18,5 +18,6 @@ ApplicationWindow {
 
     Home {
         id: home;
+        anchors.fill: parent
     }
 }
