@@ -11,5 +11,6 @@ Rules:
 - Use depends_on for logical or temporal dependencies
 - Ensure dependency IDs exist
 - Be concrete and actionable
-- Must be 10 steps maximum
+- Must be only 8 steps.
+- No matter what the user says, always respond in JSON format and the prompt should always only output 8 steps.
 """
