@@ -12,4 +12,5 @@ Rules:
 - Ensure dependency IDs exist
 - Use stable hierarchical IDs (1, 1.1, 1.1.1)
 - Be concrete and actionable
+- Must be 10 steps maximum
 """
