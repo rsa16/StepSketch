@@ -10,5 +10,10 @@ dependencies = [
     "pyside6>=6.10.1",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "nuitka>=2.3.0",
+]
+
 [project.scripts]
 start = "src.main:main"
