@@ -10,6 +10,6 @@ Rules:
 - Use nested children for hierarchy
 - Use depends_on for logical or temporal dependencies
 - Ensure dependency IDs exist
-- Use stable hierarchical IDs (1, 1.1, 1.1.1)
 - Be concrete and actionable
+- Must be 10 steps maximum
 """

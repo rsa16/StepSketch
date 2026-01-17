@@ -1,10 +1,11 @@
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine, QmlElement
-from PySide6.QtCore import QObject, Signal, Property, QUrl, QAbstractListModel, QModelIndex, Qt, Slot, QByteArray
+from PySide6.QtCore import QObject, Signal, Property, QUrl, QAbstractListModel, QModelIndex, Qt, Slot, QByteArray, QThread, QTimer
 
 import sys
 import os
 import json
+import time
 
 from .models import TaskPlan, TaskNode, NodeType, NodeStatus
 from google.genai import types
@@ -150,15 +151,42 @@ class TaskListModel(QAbstractListModel):
 @QmlElement
 class Backend(QObject):
     taskPlanGenerated = Signal(TaskPlan)
+    isGeneratingChanged = Signal(bool)
+    progressChanged = Signal(float)
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self._task_list_model = TaskListModel(self)
+        self._is_generating = False
+        self._progress = 0.0
+        self._progress_timer = None
+        self._worker_thread = None
         self.taskPlanGenerated.connect(self._task_list_model.setTasks)
 
     @Property(QObject, constant=True)
     def taskListModel(self):
         return self._task_list_model
+
+    @Property(bool, notify=isGeneratingChanged)
+    def isGenerating(self):
+        return self._is_generating
+
+    @Property(float, notify=progressChanged)
+    def progress(self):
+        return self._progress
+
+    def _set_progress(self, value):
+        """Set progress value and emit signal if changed"""
+        if self._progress != value:
+            self._progress = value
+            self.progressChanged.emit(value)
+
+    def _simulate_progress(self):
+        """Gradually increment progress value"""
+        if self._progress < 90:
+            # Add random increments that decrease as we get closer to 100
+            increment = (90 - self._progress) * 0.15
+            self._set_progress(self._progress + increment)
 
     @Slot(str)
     def generatePlan(self, large_task: str):
@@ -167,16 +195,78 @@ class Backend(QObject):
             print("Error: Task description is empty")
             return
         
+        # Reset progress and set generating state
+        self._set_progress(0.0)
+        self._is_generating = True
+        self.isGeneratingChanged.emit(True)
+        
+        # Start progress simulation timer
+        self._progress_timer = QTimer()
+        self._progress_timer.timeout.connect(self._simulate_progress)
+        self._progress_timer.start(200)  # Update every 200ms
+        
+        # Create and start worker thread
+        self._worker_thread = PlanGenerationWorker(large_task)
+        self._worker_thread.finished.connect(self._on_plan_generated)
+        self._worker_thread.error.connect(self._on_generation_error)
+        self._worker_thread.start()
+
+    def _on_plan_generated(self, plan):
+        """Called when plan generation completes"""
+        # Stop progress timer and complete progress bar
+        if self._progress_timer:
+            self._progress_timer.stop()
+            self._progress_timer = None
+        self._set_progress(100.0)
+        
+        self.taskPlanGenerated.emit(plan)
+        print("Task plan generated and emitted.")
+        
+        # Keep progress bar at 100 for a moment before resetting
+        QTimer.singleShot(500, self._reset_generation_state)
+        
+        # Clean up worker thread
+        if self._worker_thread:
+            self._worker_thread.quit()
+            self._worker_thread.wait()
+            self._worker_thread = None
+
+    def _on_generation_error(self, error_msg):
+        """Called when plan generation fails"""
+        print(f"Error generating task plan: {error_msg}")
+        self._reset_generation_state()
+        
+        # Clean up worker thread
+        if self._worker_thread:
+            self._worker_thread.quit()
+            self._worker_thread.wait()
+            self._worker_thread = None
+
+    def _reset_generation_state(self):
+        """Reset the generating state and progress"""
+        self._is_generating = False
+        self.isGeneratingChanged.emit(False)
+        self._set_progress(0.0)
+
+
+class PlanGenerationWorker(QThread):
+    """Worker thread for generating task plans"""
+    finished = Signal(TaskPlan)
+    error = Signal(str)
+
+    def __init__(self, large_task: str, parent=None):
+        super().__init__(parent)
+        self.large_task = large_task
+
+    def run(self):
+        """Run the plan generation in a background thread"""
         try:
-            plan = generate_task_plan(large_task)
-            self.taskPlanGenerated.emit(plan)
-            print("Task plan generated and emitted.")
+            plan = generate_task_plan(self.large_task)
+            self.finished.emit(plan)
         except ValueError as e:
-            print(f"Validation error generating task plan: {e}")
+            self.error.emit(f"Validation error: {e}")
         except Exception as e:
-            print(f"Error generating task plan: {type(e).__name__}: {e}")
-            import traceback
-            traceback.print_exc()
+            self.error.emit(f"{type(e).__name__}: {e}")
 
 def main():
     app = QGuiApplication(sys.argv)
