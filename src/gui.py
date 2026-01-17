@@ -1,5 +1,5 @@
 from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQml import QQmlApplicationEngine, QmlElement
 from PySide6.QtCore import QObject, Signal, Property, QUrl, QAbstractListModel, QModelIndex, Qt, Slot, QByteArray
 
 import sys
@@ -12,7 +12,16 @@ from google import genai
 from .models import TaskPlan
 from .config import SYSTEM_INSTRUCTION
 
-def generate_task_plan(client: genai.Client, large_task: str) -> TaskPlan:
+QML_IMPORT_NAME = "io.stepsketch.backend"
+QML_IMPORT_MAJOR_VERSION = 1
+API_KEY = os.getenv("GEMINI_API_KEY", None)
+
+if not API_KEY:
+    print("ERROR: please provide api key in environment variable GEMINI_API_KEY")
+
+client = genai.Client(api_key=API_KEY)
+
+def generate_task_plan(large_task: str) -> TaskPlan:
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=large_task,
@@ -121,12 +130,12 @@ class TaskListModel(QAbstractListModel):
         self._tasks = [TaskNodeData(node) for node in task_plan.nodes]
         self.endResetModel()
 
+@QmlElement
 class Backend(QObject):
     taskPlanGenerated = Signal(TaskPlan)
 
-    def __init__(self, client, parent=None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.genai_client = client
         self._task_list_model = TaskListModel(self)
         self.taskPlanGenerated.connect(self._task_list_model.setTasks)
 
@@ -138,19 +147,16 @@ class Backend(QObject):
     def generatePlan(self, large_task: str):
         print(f"Generating plan for: {large_task}")
         try:
-            plan = generate_task_plan(self.genai_client, large_task)
+            plan = generate_task_plan(large_task)
             self.taskPlanGenerated.emit(plan)
             print("Task plan generated and emitted.")
         except Exception as e:
             print(f"Error generating task plan: {e}")
 
-def main(client):
+def main():
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
-
-    backend = Backend(client)
-    engine.rootContext().setContextProperty("backend", backend)
-
+    
     qml_file = QUrl.fromLocalFile(f"{os.path.dirname(__file__)}/qml/main.qml")
     engine.load(qml_file)
 
