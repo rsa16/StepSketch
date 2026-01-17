@@ -4,6 +4,7 @@ from PySide6.QtCore import QObject, Signal, Property, QUrl, QAbstractListModel, 
 
 import sys
 import os
+import json
 
 from .models import TaskPlan, TaskNode, NodeType, NodeStatus
 from google.genai import types
@@ -19,11 +20,14 @@ API_KEY = os.getenv("GEMINI_API_KEY", None)
 if not API_KEY:
     print("ERROR: please provide api key in environment variable GEMINI_API_KEY")
 
-client = genai.Client(api_key=API_KEY)
+client = genai.Client(api_key=API_KEY) if API_KEY else None
 
 def generate_task_plan(large_task: str) -> TaskPlan:
+    if not client:
+        raise ValueError("Gemini API client not initialized. Please set GEMINI_API_KEY environment variable.")
+    
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.0-flash",
         contents=large_task,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
@@ -31,7 +35,18 @@ def generate_task_plan(large_task: str) -> TaskPlan:
             response_mime_type="application/json"
         ),
     )
-    return response.parsed
+    
+    # Handle response - try parsed first, then text fallback
+    if hasattr(response, 'parsed') and response.parsed:
+        return response.parsed
+    elif hasattr(response, 'text') and response.text:
+        try:
+            data = json.loads(response.text)
+            return TaskPlan(**data)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Failed to parse response JSON: {e}")
+    else:
+        raise ValueError(f"Invalid response from API: {response}")
 
 class TaskNodeData(QObject):
     def __init__(self, task_node: TaskNode, parent=None):
@@ -39,8 +54,8 @@ class TaskNodeData(QObject):
         self._id = task_node.id
         self._title = task_node.title
         self._description = task_node.description
-        self._type = task_node.type.value if isinstance(task_node.type, NodeType) else task_node.type
-        self._status = task_node.status.value if isinstance(task_node.status, NodeStatus) else task_node.status
+        self._type = task_node.type if isinstance(task_node.type, str) else str(task_node.type)
+        self._status = task_node.status if isinstance(task_node.status, str) else str(task_node.status)
         self._depends_on = ", ".join(task_node.depends_on)
         self._timeline_duration = task_node.timeline.estimated_duration if task_node.timeline else "N/A"
 
@@ -124,8 +139,11 @@ class TaskListModel(QAbstractListModel):
     def roleNames(self):
         return self._roles
 
-    @Slot(TaskPlan)
-    def setTasks(self, task_plan: TaskPlan):
+    @Slot(object)
+    def setTasks(self, task_plan):
+        if not isinstance(task_plan, TaskPlan):
+            print(f"Warning: Expected TaskPlan, got {type(task_plan)}")
+            return
         self.beginResetModel()
         self._tasks = [TaskNodeData(node) for node in task_plan.nodes]
         self.endResetModel()
@@ -146,12 +164,20 @@ class Backend(QObject):
     @Slot(str)
     def generatePlan(self, large_task: str):
         print(f"Generating plan for: {large_task}")
+        if not large_task.strip():
+            print("Error: Task description is empty")
+            return
+        
         try:
             plan = generate_task_plan(large_task)
             self.taskPlanGenerated.emit(plan)
             print("Task plan generated and emitted.")
+        except ValueError as e:
+            print(f"Validation error generating task plan: {e}")
         except Exception as e:
-            print(f"Error generating task plan: {e}")
+            print(f"Error generating task plan: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
 
 def main():
     app = QGuiApplication(sys.argv)
