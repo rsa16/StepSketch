@@ -1,0 +1,26 @@
+import QmlProject
+
+Project {
+    qt6Project: true
+    importPaths: [ ".", "./pages/" ]
+    mainFile: "./pages/Home.ui.qml"
+    QmlFiles {
+        files: [
+            "main.qml"
+            "./pages/Home.ui.qml",
+            "./pages/StepSketch.ui.qml"
+        ]
+    }
+    ImageFiles {
+        files: [
+            "assets/ellipse_3.png",
+            "assets/ellipse_2.png",
+            "assets/ellipse_1.png",
+            "assets/line_4.png",
+            "assets/line_2.png",
+            "assets/line_5.png",
+            "assets/line_3.png",
+            "assets/line_1.png"
+        ]
+    }
+}

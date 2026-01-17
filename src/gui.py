@@ -184,7 +184,7 @@ class Backend(QObject):
             self._progress = value
             self.progressChanged.emit(value)
 
-    def _simulate_progress(self) # add random increments:
+    def _simulate_progress(self):
         if self._progress < 90:
             increment = (90 - self._progress) * 0.15
             self._set_progress(self._progress + increment)
@@ -230,7 +230,6 @@ class Backend(QObject):
             self._worker_thread = None
 
     def _on_generation_error(self, error_msg):
-        """Called when plan generation fails"""
         print(f"Error generating task plan: {error_msg}")
         self._reset_generation_state()
         
@@ -240,13 +239,11 @@ class Backend(QObject):
             self._worker_thread = None
 
     def _reset_generation_state(self):
-        """Reset the generating state and progress"""
         self._is_generating = False
         self.isGeneratingChanged.emit(False)
         self._set_progress(0.0)
 
     def _load_most_recent_roadmap(self):
-        """Load the most recently saved roadmap on app startup"""
         try:
             roadmap = self._storage_manager.get_most_recent_roadmap()
             if roadmap:
