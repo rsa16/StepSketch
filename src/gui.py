@@ -12,6 +12,12 @@ from google import genai
 
 from .models import TaskPlan
 from .config import SYSTEM_INSTRUCTION
+from dotenv import load_dotenv
+
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
 
 QML_IMPORT_NAME = "io.stepsketch.backend"
 QML_IMPORT_MAJOR_VERSION = 1
@@ -27,7 +33,7 @@ def generate_task_plan(large_task: str) -> TaskPlan:
         raise ValueError("Gemini API client not initialized. Please set GEMINI_API_KEY environment variable.")
     
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash-lite",
         contents=large_task,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,

@@ -72,15 +72,20 @@ ApplicationWindow {
                     clip: true
 
                     delegate: Rectangle {
-                        width: parent.width
-                        height: childrenRect.height + 20 // Add padding for content
+                        id: delegateRoot
+                        width: taskListView.width
                         color: "#f8f8f8"
                         border.color: "#dddddd"
                         border.width: 1
                         radius: 5
 
                         ColumnLayout {
-                            anchors.fill: parent
+                            id: delegateContentLayout
+                            width: delegateRoot.width - 20
+                            anchors.left: delegateRoot.left
+                            anchors.top: delegateRoot.top
+                            anchors.leftMargin: 10
+                            anchors.topMargin: 10
                             spacing: 5
 
                             Text {
@@ -118,6 +123,7 @@ ApplicationWindow {
                                 font.pixelSize: 14
                             }
                         }
+                        height: delegateContentLayout.implicitHeight + 20 // 10px padding on top and bottom
                     }
                 }
             }
