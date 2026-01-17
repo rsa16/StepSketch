@@ -42,15 +42,8 @@ def generate_task_plan(large_task: str) -> TaskPlan:
         ),
     )
     
-    # Handle response - try parsed first, then text fallback
     if hasattr(response, 'parsed') and response.parsed:
         return response.parsed
-    elif hasattr(response, 'text') and response.text:
-        try:
-            data = json.loads(response.text)
-            return TaskPlan(**data)
-        except json.JSONDecodeError as e:
-            raise ValueError(f"Failed to parse response JSON: {e}")
     else:
         raise ValueError(f"Invalid response from API: {response}")
 
