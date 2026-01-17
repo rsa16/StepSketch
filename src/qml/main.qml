@@ -30,11 +30,13 @@ ApplicationWindow {
                 id: taskInput
                 Layout.fillWidth: true
                 placeholderText: "Enter a task to generate a plan (e.g., 'Teach me how to build a PC')"
+                enabled: !backend.isGenerating
                 onAccepted: backend.generatePlan(taskInput.text)
             }
 
             Button {
-                text: "Generate Plan"
+                text: backend.isGenerating ? "Generating..." : "Generate Plan"
+                enabled: !backend.isGenerating
                 onClicked: backend.generatePlan(taskInput.text)
             }
         }
@@ -48,6 +50,40 @@ ApplicationWindow {
         ColumnLayout {
             anchors.fill: parent
             spacing: 5
+
+            Rectangle {
+                id: progressBarContainer
+                Layout.fillWidth: true
+                height: backend.isGenerating ? 50 : 0
+                color: "#ffffff"
+                border.color: "#cccccc"
+                border.width: backend.isGenerating ? 1 : 0
+                clip: true
+                Behavior on height {
+                    NumberAnimation { duration: 200 }
+                }
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    spacing: 5
+
+                    Text {
+                        text: "Generating plan from AI..."
+                        font.pixelSize: 12
+                        color: "#333333"
+                    }
+
+                    ProgressBar {
+                        id: progressBar
+                        Layout.fillWidth: true
+                        indeterminate: false
+                        from: 0
+                        to: 100
+                        value: backend.progress
+                    }
+                }
+            }
 
             Text {
                 text: "Task Plan Nodes"
@@ -70,6 +106,7 @@ ApplicationWindow {
                     model: backend.taskListModel
                     spacing: 5
                     clip: true
+                    visible: !backend.isGenerating
 
                     delegate: Rectangle {
                         id: delegateRoot
