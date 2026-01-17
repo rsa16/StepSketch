@@ -1,7 +1,7 @@
 SYSTEM_INSTRUCTION = """
 You are an AI task-planning engine.
 
-Break down the user's task into:
+Break down the user's task into a JSON format:
 - Hierarchical subtasks
 - Clear dependencies
 - Timeline hints

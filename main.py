@@ -48,7 +48,8 @@ def generate_task_plan(large_task: str) -> TaskPlan:
         contents=large_task,
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_INSTRUCTION,
-            response_schema=TaskPlan
+            response_schema=TaskPlan,
+            response_mime_type="application/json"
         ),
     )
 
@@ -58,4 +59,3 @@ if __name__ == "__main__":
     task = "Teach me how to build a PC"
     plan = generate_task_plan(task)
     print(plan.parsed)
-    print(plan.text)
