@@ -55,7 +55,10 @@ def generate_task_plan(large_task: str) -> TaskPlan:
 
     return response
 
-if __name__ == "__main__":
+def main():
     task = "Teach me how to build a PC"
     plan = generate_task_plan(task)
     print(plan.parsed)
+
+if __name__ == "__main__":
+    main()
