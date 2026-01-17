@@ -5,7 +5,8 @@ from PySide6.QtCore import QObject, Signal, Property, QUrl, QAbstractListModel, 
 import sys
 import os
 
-from .models import TaskPlan, TaskNode
+from .models import TaskPlan, TaskNode, NodeType, NodeStatus
+from .storage import RoadmapStorageManager
 from google.genai import types
 from google import genai
 
@@ -159,7 +160,12 @@ class Backend(QObject):
         self._progress = 0.0
         self._progress_timer = None
         self._worker_thread = None
+        self._storage_manager = RoadmapStorageManager()
+        self._current_task_plan = None
         self.taskPlanGenerated.connect(self._task_list_model.setTasks)
+        
+        # Load the most recent roadmap on startup
+        self._load_most_recent_roadmap()
 
     @Property(QObject, constant=True)
     def taskListModel(self):
@@ -209,6 +215,10 @@ class Backend(QObject):
             self._progress_timer = None
         self._set_progress(100.0)
         
+        # Store the current plan and save it
+        self._current_task_plan = plan
+        self._storage_manager.save_data(plan)
+        
         self.taskPlanGenerated.emit(plan)
         print("Task plan generated and emitted.")
         
@@ -234,6 +244,20 @@ class Backend(QObject):
         self._is_generating = False
         self.isGeneratingChanged.emit(False)
         self._set_progress(0.0)
+
+    def _load_most_recent_roadmap(self):
+        """Load the most recently saved roadmap on app startup"""
+        try:
+            roadmap = self._storage_manager.get_most_recent_roadmap()
+            if roadmap:
+                self._current_task_plan = roadmap
+                self.taskPlanGenerated.emit(roadmap)
+                print("Loaded previous roadmap on startup")
+            else:
+                print("No previous roadmaps found")
+        except Exception as e:
+            print(f"Error loading previous roadmap: {e}")
+
 
 class PlanGenerationWorker(QThread):
     finished = Signal(TaskPlan)
