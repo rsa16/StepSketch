@@ -2,14 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Shapes
 
-import io.stepsketch.backend 1.0
-
 Item {
     id: timeline
-
-    Backend {
-        id: backend;
-    }
 
     Shape {
         id: background
@@ -61,37 +55,37 @@ Item {
                 font.weight: Font.Medium
             }
 
-            RowLayout {
-                spacing: 10
-                Layout.fillWidth: true
+            // RowLayout {
+            //     spacing: 10
+            //     Layout.fillWidth: true
 
-                Rectangle {
-                    id: rectangle_5
-                    height: 4
-                    color: "#3d3e4b"
-                    radius: 2
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignVCenter
+            //     Rectangle {
+            //         id: rectangle_5
+            //         height: 4
+            //         color: "#3d3e4b"
+            //         radius: 2
+            //         Layout.fillWidth: true
+            //         Layout.alignment: Qt.AlignVCenter
 
-                    Rectangle {
-                        id: rectangle_6
-                        height: 4
-                        width: parent.width * backend.taskPlanProgress / 100
-                        color: "#e1e1e1"
-                        radius: 2
-                        Behavior on width { NumberAnimation { duration: 200 } }
-                    }
-                }
+            //         Rectangle {
+            //             id: rectangle_6
+            //             height: 4
+            //             width: parent.width * backend.taskPlanProgress / 100
+            //             color: "#e1e1e1"
+            //             radius: 2
+            //             Behavior on width { NumberAnimation { duration: 200 } }
+            //         }
+            //     }
 
-                Text {
-                    id: element
-                    text: backend.taskPlanProgress.toFixed(1) + "%"
-                    color: "#ffffff"
-                    font.pixelSize: 12
-                    font.family: "Poppins"
-                    font.weight: Font.Medium
-                }
-            }
+            //     Text {
+            //         id: element
+            //         text: backend.taskPlanProgress.toFixed(1) + "%"
+            //         color: "#ffffff"
+            //         font.pixelSize: 12
+            //         font.family: "Poppins"
+            //         font.weight: Font.Medium
+            //     }
+            // }
 
             Item {
                 Layout.fillWidth: true
@@ -147,6 +141,7 @@ Item {
                         property var startItem: stepsRepeater.itemAt(index)
                         property var endItem: stepsRepeater.itemAt(index + 1)
                         property bool isSameRow: Math.floor(index / 2) === Math.floor((index + 1) / 2)
+                        visible: startItem && endItem
 
                         ShapePath {
                             strokeColor: "#555"
@@ -168,134 +163,134 @@ Item {
         }
 
 
-        // Right Column
-        ColumnLayout {
-            Layout.fillHeight: true
-            Layout.rightMargin: 40
-            spacing: 20
+        // // Right Column
+        // ColumnLayout {
+        //     Layout.fillHeight: true
+        //     Layout.rightMargin: 40
+        //     spacing: 20
 
-            Rectangle {
-                id: rectangle_4
-                color: "#444653"
-                radius: 10
-                Layout.fillWidth: true
-                Layout.preferredHeight: 150
+        //     Rectangle {
+        //         id: rectangle_4
+        //         color: "#444653"
+        //         radius: 10
+        //         Layout.fillWidth: true
+        //         Layout.preferredHeight: 150
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 15
+        //         ColumnLayout {
+        //             anchors.fill: parent
+        //             anchors.margins: 15
 
-                    RowLayout {
-                        spacing: 5
-                        Item {
-                            id: mdi_clock_outline
-                            width: 14
-                            height: 14
-                            clip: true
-                            Shape {
-                                anchors.fill: parent
-                                ShapePath {
-                                    fillColor: "#b6b6b6"
-                                    PathSvg {
-                                        path: "M 7,1 C 3.1,1 0,4.1 0,8 C 0,11.9 3.1,15 7,15 C 10.9,15 14,11.9 14,8 C 14,4.1 10.9,1 7,1 Z M 7,13 C 4.2,13 2,10.8 2,8 C 2,5.2 4.2,3 7,3 C 9.8,3 12,5.2 12,8 C 12,10.8 9.8,13 7,13 Z M 7.5,4 L 6.5,4 L 6.5,8.5 L 10.5,10.5 L 11,9.5 L 7.5,7.5 L 7.5,4 Z"
-                                    }
-                                }
-                            }
-                        }
-                        Text {
-                            id: days
-                            text: backend.currentTask ? backend.currentTask.timelineDuration : ""
-                            color: "#b6b6b6"
-                            font.pixelSize: 14
-                            font.family: "Poppins"
-                            font.weight: Font.DemiBold
-                        }
-                    }
+        //             RowLayout {
+        //                 spacing: 5
+        //                 Item {
+        //                     id: mdi_clock_outline
+        //                     width: 14
+        //                     height: 14
+        //                     clip: true
+        //                     Shape {
+        //                         anchors.fill: parent
+        //                         ShapePath {
+        //                             fillColor: "#b6b6b6"
+        //                             PathSvg {
+        //                                 path: "M 7,1 C 3.1,1 0,4.1 0,8 C 0,11.9 3.1,15 7,15 C 10.9,15 14,11.9 14,8 C 14,4.1 10.9,1 7,1 Z M 7,13 C 4.2,13 2,10.8 2,8 C 2,5.2 4.2,3 7,3 C 9.8,3 12,5.2 12,8 C 12,10.8 9.8,13 7,13 Z M 7.5,4 L 6.5,4 L 6.5,8.5 L 10.5,10.5 L 11,9.5 L 7.5,7.5 L 7.5,4 Z"
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //                 Text {
+        //                     id: days
+        //                     text: backend.currentTask ? backend.currentTask.timelineDuration : ""
+        //                     color: "#b6b6b6"
+        //                     font.pixelSize: 14
+        //                     font.family: "Poppins"
+        //                     font.weight: Font.DemiBold
+        //                 }
+        //             }
 
-                    Text {
-                        id: acquire_all_necessary_PC_components_and_tools
-                        text: backend.currentTask ? backend.currentTask.title : ""
-                        color: "#ffffff"
-                        font.pixelSize: 20
-                        font.family: "Poppins"
-                        font.weight: Font.Light
-                        wrapMode: Text.WordWrap
-                        Layout.fillWidth: true
-                    }
-                }
-            }
+        //             Text {
+        //                 id: acquire_all_necessary_PC_components_and_tools
+        //                 text: backend.currentTask ? backend.currentTask.title : ""
+        //                 color: "#ffffff"
+        //                 font.pixelSize: 20
+        //                 font.family: "Poppins"
+        //                 font.weight: Font.Light
+        //                 wrapMode: Text.WordWrap
+        //                 Layout.fillWidth: true
+        //             }
+        //         }
+        //     }
 
-            Rectangle {
-                id: rectangle_7
-                color: "#444653"
-                radius: 10
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+        //     Rectangle {
+        //         id: rectangle_7
+        //         color: "#444653"
+        //         radius: 10
+        //         Layout.fillWidth: true
+        //         Layout.fillHeight: true
 
-                Text {
-                    id: lorem_Ipsum_is_simply_dummy_text_of_the_printing
-                    text: backend.currentTask ? backend.currentTask.description : ""
-                    color: "#d3d3d3"
-                    font.pixelSize: 12
-                    font.family: "Poppins"
-                    anchors.fill: parent
-                    anchors.margins: 15
-                    wrapMode: Text.WordWrap
-                }
-            }
+        //         Text {
+        //             id: lorem_Ipsum_is_simply_dummy_text_of_the_printing
+        //             text: backend.currentTask ? backend.currentTask.description : ""
+        //             color: "#d3d3d3"
+        //             font.pixelSize: 12
+        //             font.family: "Poppins"
+        //             anchors.fill: parent
+        //             anchors.margins: 15
+        //             wrapMode: Text.WordWrap
+        //         }
+        //     }
 
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 10
+        //     RowLayout {
+        //         Layout.fillWidth: true
+        //         spacing: 10
 
-                Rectangle {
-                    id: rectangle_8
-                    color: mouseAreaBack.containsMouse ? "#5a5c6d" : "#444653"
-                    radius: 10
-                    Layout.fillWidth: true
-                    height: 40
+        //         Rectangle {
+        //             id: rectangle_8
+        //             color: mouseAreaBack.containsMouse ? "#5a5c6d" : "#444653"
+        //             radius: 10
+        //             Layout.fillWidth: true
+        //             height: 40
 
-                    Text {
-                        id: back
-                        text: "< Back"
-                        color: "#ffffff"
-                        font.pixelSize: 14
-                        font.family: "Poppins"
-                        anchors.centerIn: parent
-                    }
+        //             Text {
+        //                 id: back
+        //                 text: "< Back"
+        //                 color: "#ffffff"
+        //                 font.pixelSize: 14
+        //                 font.family: "Poppins"
+        //                 anchors.centerIn: parent
+        //             }
 
-                    MouseArea {
-                        id: mouseAreaBack
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                    }
-                }
+        //             MouseArea {
+        //                 id: mouseAreaBack
+        //                 anchors.fill: parent
+        //                 hoverEnabled: true
+        //                 cursorShape: Qt.PointingHandCursor
+        //             }
+        //         }
 
-                Rectangle {
-                    id: rectangle_9
-                    color: mouseAreaNext.containsMouse ? "#5a5c6d" : "#444653"
-                    radius: 10
-                    Layout.fillWidth: true
-                    height: 40
+        //         Rectangle {
+        //             id: rectangle_9
+        //             color: mouseAreaNext.containsMouse ? "#5a5c6d" : "#444653"
+        //             radius: 10
+        //             Layout.fillWidth: true
+        //             height: 40
 
-                    Text {
-                        id: next
-                        text: "Next >"
-                        color: "#ffffff"
-                        font.pixelSize: 14
-                        font.family: "Poppins"
-                        anchors.centerIn: parent
-                    }
+        //             Text {
+        //                 id: next
+        //                 text: "Next >"
+        //                 color: "#ffffff"
+        //                 font.pixelSize: 14
+        //                 font.family: "Poppins"
+        //                 anchors.centerIn: parent
+        //             }
 
-                    MouseArea {
-                        id: mouseAreaNext
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                    }
-                }
-            }
-        }
+        //             MouseArea {
+        //                 id: mouseAreaNext
+        //                 anchors.fill: parent
+        //                 hoverEnabled: true
+        //                 cursorShape: Qt.PointingHandCursor
+        //             }
+        //         }
+        //     }
+        // }
     }
 }

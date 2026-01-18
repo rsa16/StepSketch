@@ -12,9 +12,9 @@ ApplicationWindow {
     visible: true
     title: "Task Plan Viewer"
 
-    Connections {
-        target: backend
-        function onTaskPlanGenerated() {
+    Backend {
+        id: backend
+        onTaskPlanGenerated: {
             stackView.push(timelinePage)
         }
     }
