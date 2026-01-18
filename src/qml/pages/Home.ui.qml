@@ -5,9 +5,16 @@ import QtQuick.Controls
 
 Rectangle {
     id: home
-    anchors.fill: parent
+    anchors.fill: parent;
+    width: 800
+    height: 600
     clip: true
     color: "#0f111c"
+
+    FontLoader {
+        id: zenLoop;
+        source: "../fonts/ZenLoop-Regular.ttf"
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -25,7 +32,7 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter
             color: "#ffffff"
             font.family: "Zen Loop"
-            font.pixelSize: 55
+            font.pixelSize: 75
             font.weight: Font.Normal
             text: "StepSketch"
             textFormat: Text.PlainText
@@ -83,8 +90,8 @@ Rectangle {
                     hoverEnabled: true
                     onClicked: {
                         if (taskInput.text.trim()) {
-                            backend.generatePlan(taskInput.text)
-                            taskInput.text = ""
+                            backend.generatePlan(taskInput.text);
+                            taskInput.text = "";
                         }
                     }
                     onEntered: parent.color = "#353749"
@@ -92,9 +99,7 @@ Rectangle {
                 }
 
                 Shape {
-                    anchors.centerIn: parent
-                    width: 16
-                    height: 12
+                    anchors.centerIn: parent;
 
                     ShapePath {
                         fillColor: "#00000000"
@@ -136,7 +141,9 @@ Rectangle {
                     color: "#4a9eff"
                     radius: 3
                     Behavior on width {
-                        NumberAnimation { duration: 200 }
+                        NumberAnimation {
+                            duration: 200
+                        }
                     }
                 }
             }
@@ -148,50 +155,50 @@ Rectangle {
         }
     }
 
-    // Decorative elements at bottom
-    Item {
-        id: group_1
-        x: 12
-        y: parent.height - 50
-        height: 23
-        width: 23
+    Image {
+        id: ellipse_1
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 20
+        anchors.leftMargin: 15
 
-        Image {
-            id: ellipse_1
-            source: Qt.resolvedUrl("../assets/ellipse_1.png")
-        }
+        height: 40
+        width: 40
+        source: Qt.resolvedUrl("../assets/ellipse_1.png")
+
         Text {
             id: element
-            x: 9
-            y: 8
-            height: 7
-            width: 5
+            height: parent.height
+            width: parent.width
             color: "#ffffff"
             font.family: "Tuffy"
-            font.pixelSize: 9
+            font.pixelSize: 16
             font.weight: Font.Normal
-            horizontalAlignment: Text.AlignLeft
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
             text: "?"
             textFormat: Text.PlainText
-            verticalAlignment: Text.AlignVCenter
         }
     }
 
     Image {
         id: ellipse_2
+        width: parent.width * 0.75
+        height: parent.height * 0.80
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 10
         anchors.left: parent.left
-        anchors.leftMargin: 40
+        anchors.right: parent.right
+
         source: Qt.resolvedUrl("../assets/ellipse_2.png")
     }
 
     Image {
         id: ellipse_3
+        width: parent.width * 0.75
+        height: parent.height * 0.80
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 10
+        anchors.left: parent.left
         anchors.right: parent.right
-        anchors.rightMargin: 40
         source: Qt.resolvedUrl("../assets/ellipse_3.png")
     }
 }
