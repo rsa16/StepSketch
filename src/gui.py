@@ -152,6 +152,9 @@ class Backend(QObject):
     taskPlanGenerated = Signal(TaskPlan)
     isGeneratingChanged = Signal(bool)
     progressChanged = Signal(float)
+    taskPlanTitleChanged = Signal()
+    taskPlanProgressChanged = Signal()
+    currentTaskChanged = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -163,7 +166,8 @@ class Backend(QObject):
         self._storage_manager = RoadmapStorageManager()
         self._current_task_plan = None
         self.taskPlanGenerated.connect(self._task_list_model.setTasks)
-        
+        self.taskPlanGenerated.connect(self._update_plan_properties)
+
         # Load the most recent roadmap on startup
         self._load_most_recent_roadmap()
 
@@ -178,6 +182,31 @@ class Backend(QObject):
     @Property(float, notify=progressChanged)
     def progress(self):
         return self._progress
+    
+    @Property(str, notify=taskPlanTitleChanged)
+    def taskPlanTitle(self):
+        return self._current_task_plan.task_name if self._current_task_plan else ""
+
+    @Property(float, notify=taskPlanProgressChanged)
+    def taskPlanProgress(self):
+        if not self._current_task_plan or not self._current_task_plan.nodes:
+            return 0.0
+        
+        completed_tasks = sum(1 for node in self._current_task_plan.nodes if node.status == "COMPLETED")
+        return (completed_tasks / len(self._current_task_plan.nodes)) * 100
+
+    @Property(QObject, notify=currentTaskChanged)
+    def currentTask(self):
+        if not self._current_task_plan or not self._current_task_plan.nodes:
+            return None
+        
+        # Find the first task that is "IN_PROGRESS" or "NOT_STARTED"
+        for node in self._current_task_plan.nodes:
+            if node.status in ["IN_PROGRESS", "NOT_STARTED"]:
+                return TaskNodeData(node)
+        
+        # If all tasks are done, return the last one
+        return TaskNodeData(self._current_task_plan.nodes[-1])
 
     def _set_progress(self, value):
         if self._progress != value:
@@ -254,6 +283,11 @@ class Backend(QObject):
                 print("No previous roadmaps found")
         except Exception as e:
             print(f"Error loading previous roadmap: {e}")
+
+    def _update_plan_properties(self, plan):
+        self.taskPlanTitleChanged.emit()
+        self.taskPlanProgressChanged.emit()
+        self.currentTaskChanged.emit()
 
 
 class PlanGenerationWorker(QThread):

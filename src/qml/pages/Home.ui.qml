@@ -155,31 +155,31 @@ Rectangle {
         }
     }
 
-    Image {
-        id: ellipse_1
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 20
-        anchors.leftMargin: 15
+    // Image {
+    //     id: ellipse_1
+    //     anchors.left: parent.left
+    //     anchors.bottom: parent.bottom
+    //     anchors.bottomMargin: 20
+    //     anchors.leftMargin: 15
 
-        height: 40
-        width: 40
-        source: Qt.resolvedUrl("../assets/ellipse_1.png")
+    //     height: 40
+    //     width: 40
+    //     source: Qt.resolvedUrl("../assets/ellipse_1.png")
 
-        Text {
-            id: element
-            height: parent.height
-            width: parent.width
-            color: "#ffffff"
-            font.family: "Tuffy"
-            font.pixelSize: 16
-            font.weight: Font.Normal
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            text: "?"
-            textFormat: Text.PlainText
-        }
-    }
+    //     Text {
+    //         id: element
+    //         height: parent.height
+    //         width: parent.width
+    //         color: "#ffffff"
+    //         font.family: "Tuffy"
+    //         font.pixelSize: 16
+    //         font.weight: Font.Normal
+    //         horizontalAlignment: Text.AlignHCenter
+    //         verticalAlignment: Text.AlignVCenter
+    //         text: "?"
+    //         textFormat: Text.PlainText
+    //     }
+    // }
 
     Image {
         id: ellipse_2

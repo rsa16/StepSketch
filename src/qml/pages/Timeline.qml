@@ -2,8 +2,14 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Shapes
 
+import io.stepsketch.backend 1.0
+
 Item {
     id: timeline
+
+    Backend {
+        id: backend;
+    }
 
     Shape {
         id: background
@@ -43,12 +49,12 @@ Item {
         // Left Column
         ColumnLayout {
             Layout.fillHeight: true
-            Layout.preferredWidth: timeline.width * 0.5;
+            Layout.preferredWidth: timeline.width * 0.07;
             spacing: 20
 
             Text {
                 id: how_To_Build_a_PC
-                text: "How To Build a PC"
+                text: backend.taskPlanTitle
                 color: "#ffffff"
                 font.pixelSize: 60
                 font.family: "Poppins"
@@ -70,15 +76,16 @@ Item {
                     Rectangle {
                         id: rectangle_6
                         height: 4
-                        width: parent.width * 0.125
+                        width: parent.width * backend.taskPlanProgress / 100
                         color: "#e1e1e1"
                         radius: 2
+                        Behavior on width { NumberAnimation { duration: 200 } }
                     }
                 }
 
                 Text {
                     id: element
-                    text: "12.5%"
+                    text: backend.taskPlanProgress.toFixed(1) + "%"
                     color: "#ffffff"
                     font.pixelSize: 12
                     font.family: "Poppins"
@@ -92,29 +99,21 @@ Item {
 
                 Repeater {
                     id: stepsRepeater
-                    model: [
-                        { "number": "1.", "title": "Gather\nComponents", "active": true },
-                        { "number": "2.", "title": "Prepare the\nPC Case" },
-                        { "number": "3.", "title": "Install CPU on\nMotherboard" },
-                        { "number": "4.", "title": "Prepare the\nPC Case" },
-                        { "number": "5.", "title": "Install CPU on\nMotherboard" },
-                        { "number": "6.", "title": "Install CPU on\nMotherboard" },
-                        { "number": "7.", "title": "Install CPU on\nMotherboard" },
-                        { "number": "8.", "title": "Install CPU on\nMotherboard" }
-                    ]
+                    model: backend.taskListModel
 
                     delegate: Rectangle {
                         id: delegateRoot
                         property int rowIndex: Math.floor(index / 2)
                         property int colIndex: index % 2
                         property bool isOddRow: rowIndex % 2 !== 0
+                        property bool isActive: model.status === "IN_PROGRESS" || model.status === "COMPLETED"
 
                         width: (parent.width - 80) / 2
                         height: 65
-                        x: isOddRow ? (parent.width - width) - (colIndex * (width + 80)) : colIndex * (width + 80)
+                        x: isOddRow ? (1 - colIndex) * (width + 80) : colIndex * (width + 80)
                         y: rowIndex * (height + 40)
-                        color: modelData.active ? "#3d3d3d" : "#292a30"
-                        border.color: modelData.active ? "#c1c1c1" : "transparent"
+                        color: isActive ? "#3d3d3d" : "#292a30"
+                        border.color: isActive ? "#c1c1c1" : "transparent"
                         border.width: 2
                         radius: 10
 
@@ -125,14 +124,14 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: modelData.number
+                                text: (index + 1) + "."
                                 color: "#afafaf"
                                 font.pixelSize: 16
                                 font.family: "Poppins"
                             }
                             Text {
-                                text: modelData.title
-                                color: modelData.active ? "#ffffff" : "#afafaf"
+                                text: model.title.replace(" ", "\n")
+                                color: isActive ? "#ffffff" : "#afafaf"
                                 font.pixelSize: 14
                                 font.family: "Poppins"
                             }
@@ -141,61 +140,36 @@ Item {
                 }
 
                 // Connectors
-                Shape {
-                    anchors.fill: parent
-                    ShapePath {
-                        strokeColor: "#555"
-                        strokeWidth: 2
-                        PathLine { x: stepsRepeater.itemAt(0).x + stepsRepeater.itemAt(0).width; y: stepsRepeater.itemAt(0).y + stepsRepeater.itemAt(0).height / 2 }
-                        PathLine { x: stepsRepeater.itemAt(1).x; y: stepsRepeater.itemAt(1).y + stepsRepeater.itemAt(1).height / 2 }
-                    }
-                    ShapePath {
-                        strokeColor: "#555"
-                        strokeWidth: 2
-                        PathLine { x: stepsRepeater.itemAt(1).x + stepsRepeater.itemAt(1).width / 2; y: stepsRepeater.itemAt(1).y + stepsRepeater.itemAt(1).height }
-                        PathLine { x: stepsRepeater.itemAt(1).x + stepsRepeater.itemAt(1).width / 2; y: stepsRepeater.itemAt(3).y }
-                    }
-                    ShapePath {
-                        strokeColor: "#555"
-                        strokeWidth: 2
-                        PathLine { x: stepsRepeater.itemAt(3).x; y: stepsRepeater.itemAt(3).y + stepsRepeater.itemAt(3).height / 2 }
-                        PathLine { x: stepsRepeater.itemAt(2).x + stepsRepeater.itemAt(2).width; y: stepsRepeater.itemAt(2).y + stepsRepeater.itemAt(2).height / 2 }
-                    }
-                     ShapePath {
-                        strokeColor: "#555"
-                        strokeWidth: 2
-                        PathLine { x: stepsRepeater.itemAt(2).x + stepsRepeater.itemAt(2).width / 2; y: stepsRepeater.itemAt(2).y + stepsRepeater.itemAt(2).height }
-                        PathLine { x: stepsRepeater.itemAt(2).x + stepsRepeater.itemAt(2).width / 2; y: stepsRepeater.itemAt(4).y }
-                    }
-                    ShapePath {
-                        strokeColor: "#555"
-                        strokeWidth: 2
-                        PathLine { x: stepsRepeater.itemAt(4).x + stepsRepeater.itemAt(4).width; y: stepsRepeater.itemAt(4).y + stepsRepeater.itemAt(4).height / 2 }
-                        PathLine { x: stepsRepeater.itemAt(5).x; y: stepsRepeater.itemAt(5).y + stepsRepeater.itemAt(5).height / 2 }
-                    }
-                    ShapePath {
-                        strokeColor: "#555"
-                        strokeWidth: 2
-                        PathLine { x: stepsRepeater.itemAt(5).x + stepsRepeater.itemAt(5).width / 2; y: stepsRepeater.itemAt(5).y + stepsRepeater.itemAt(5).height }
-                        PathLine { x: stepsRepeater.itemAt(5).x + stepsRepeater.itemAt(5).width / 2; y: stepsRepeater.itemAt(7).y }
-                    }
-                    ShapePath {
-                        strokeColor: "#555"
-                        strokeWidth: 2
-                        PathLine { x: stepsRepeater.itemAt(7).x; y: stepsRepeater.itemAt(7).y + stepsRepeater.itemAt(7).height / 2 }
-                        PathLine { x: stepsRepeater.itemAt(6).x + stepsRepeater.itemAt(6).width; y: stepsRepeater.itemAt(6).y + stepsRepeater.itemAt(6).height / 2 }
+                Repeater {
+                    model: stepsRepeater.count -1
+                    delegate: Shape {
+                        z: -1
+                        property var startItem: stepsRepeater.itemAt(index)
+                        property var endItem: stepsRepeater.itemAt(index + 1)
+                        property bool isSameRow: Math.floor(index / 2) === Math.floor((index + 1) / 2)
+
+                        ShapePath {
+                            strokeColor: "#555"
+                            strokeWidth: 2
+                            startX: isSameRow ? startItem.x + startItem.width : startItem.x + startItem.width / 2
+                            startY: isSameRow ? startItem.y + startItem.height / 2 : startItem.y + startItem.height
+
+                            PathLine {
+                                x: isSameRow ? endItem.x : endItem.x + endItem.width / 2
+                                y: isSameRow ? endItem.y + endItem.height / 2 : endItem.y
+                            }
+                        }
                     }
                 }
             }
-             Item {
-                Layout.fillHeight: true
-             }
+            Item {
+               Layout.fillHeight: true
+            }
         }
 
 
         // Right Column
         ColumnLayout {
-            Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.rightMargin: 40
             spacing: 20
@@ -230,7 +204,7 @@ Item {
                         }
                         Text {
                             id: days
-                            text: "1-3 days"
+                            text: backend.currentTask ? backend.currentTask.timelineDuration : ""
                             color: "#b6b6b6"
                             font.pixelSize: 14
                             font.family: "Poppins"
@@ -240,7 +214,7 @@ Item {
 
                     Text {
                         id: acquire_all_necessary_PC_components_and_tools
-                        text: "Acquire all necessary PC components and tools"
+                        text: backend.currentTask ? backend.currentTask.title : ""
                         color: "#ffffff"
                         font.pixelSize: 20
                         font.family: "Poppins"
@@ -260,7 +234,7 @@ Item {
 
                 Text {
                     id: lorem_Ipsum_is_simply_dummy_text_of_the_printing
-                    text: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500"
+                    text: backend.currentTask ? backend.currentTask.description : ""
                     color: "#d3d3d3"
                     font.pixelSize: 12
                     font.family: "Poppins"

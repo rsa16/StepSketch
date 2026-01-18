@@ -2,7 +2,7 @@ from typing import List, Optional, Literal
 from pydantic import BaseModel, Field
 
 NodeType = Literal["task", "milestone", "decision", "action"]
-NodeStatus = Literal["pending", "optional", "blocked"]
+NodeStatus = Literal["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "PENDING", "OPTIONAL", "BLOCKED"]
 
 class Timeline(BaseModel):
     estimated_duration: str
@@ -15,7 +15,7 @@ class TaskNode(BaseModel):
     title: str
     description: str
     type: NodeType
-    status: NodeStatus = "pending"
+    status: NodeStatus = "NOT_STARTED"
     depends_on: List[str] = Field(default_factory=list)
     timeline: Optional[Timeline] = None
     inputs: List[str] = Field(default_factory=list)
